@@ -1,0 +1,49 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isOwner(data) {
+      return data.userId == request.auth.uid;
+    }
+
+    // Medicines Collection
+    match /medicines/{medicineId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn(); // In a real app, restrict to admins
+    }
+
+    // Prescriptions Collection
+    match /prescriptions/{prescriptionId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    // Sales Collection
+    match /sales/{saleId} {
+      allow read: if isSignedIn() && isOwner(resource.data);
+      allow create: if isSignedIn() && isOwner(request.resource.data);
+      allow update, delete: if false; // Sales are immutable
+    }
+  }
+}

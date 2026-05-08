@@ -1,0 +1,58 @@
+{
+  "entities": {
+    "Medicine": {
+      "title": "Medicine",
+      "description": "Stock items in the pharmacy inventory",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Generic and Brand name" },
+        "category": { "type": "string", "description": "e.g., Antibiotics, Painkillers" },
+        "stock": { "type": "number", "description": "Current quantity in stock" },
+        "price": { "type": "number", "description": "Unit price" },
+        "expiryDate": { "type": "string", "format": "date-time" },
+        "manufacturer": { "type": "string" },
+        "minThreshold": { "type": "number", "description": "Minimum stock level for alerts" }
+      },
+      "required": ["name", "stock", "price", "category"]
+    },
+    "Prescription": {
+      "title": "Prescription",
+      "description": "Patient prescriptions for processing",
+      "type": "object",
+      "properties": {
+        "patientName": { "type": "string" },
+        "doctorName": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["pending", "dispensed", "cancelled"] },
+        "items": { "type": "array", "description": "List of medicines and dosages" }
+      },
+      "required": ["patientName", "status", "date"]
+    },
+    "Sale": {
+      "title": "Sale",
+      "description": "Record of a transaction",
+      "type": "object",
+      "properties": {
+        "items": { "type": "array" },
+        "total": { "type": "number" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "userId": { "type": "string" }
+      },
+      "required": ["total", "timestamp", "userId"]
+    }
+  },
+  "firestore": {
+    "/medicines": {
+      "schema": "Medicine",
+      "description": "Main inventory"
+    },
+    "/prescriptions": {
+      "schema": "Prescription",
+      "description": "Patient orders"
+    },
+    "/sales": {
+      "schema": "Sale",
+      "description": "Transaction logs"
+    }
+  }
+}
